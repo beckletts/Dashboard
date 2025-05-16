@@ -13,8 +13,9 @@ import { Box, Typography, Paper, useTheme } from '@mui/material';
 
 interface TrainingData {
   trainingModule: string;
-  numberOfTimesCourseAttempted: number;
-  numberOfTimesCourseCompleted: number;
+  inProgress: number;
+  notStarted: number;
+  completed: number;
 }
 
 interface Props {
@@ -26,17 +27,18 @@ const TrainingCompletionChart: React.FC<Props> = ({ data }) => {
 
   const chartData = data.map(item => ({
     name: item.trainingModule,
-    Attempted: item.numberOfTimesCourseAttempted,
-    Completed: item.numberOfTimesCourseCompleted,
-    CompletionRate: item.numberOfTimesCourseAttempted > 0
-      ? Math.round((item.numberOfTimesCourseCompleted / item.numberOfTimesCourseAttempted) * 100)
+    'Not Started': item.notStarted,
+    'In Progress': item.inProgress,
+    'Completed': item.completed,
+    CompletionRate: (item.notStarted + item.inProgress + item.completed) > 0
+      ? Math.round((item.completed / (item.notStarted + item.inProgress + item.completed)) * 100)
       : 0
   }));
 
   return (
     <Paper sx={{ p: 2, mb: 2 }}>
       <Typography variant="h6" gutterBottom fontFamily="Plus Jakarta Sans" fontWeight={500}>
-        Training Completion Rates
+        Training Status Overview
       </Typography>
       <Box sx={{ width: '100%', height: 400 }}>
         <ResponsiveContainer>
@@ -80,9 +82,10 @@ const TrainingCompletionChart: React.FC<Props> = ({ data }) => {
                 fontFamily: 'Plus Jakarta Sans'
               }}
             />
-            <Bar yAxisId="left" dataKey="Attempted" fill={theme.palette.pearson.purple} />
-            <Bar yAxisId="left" dataKey="Completed" fill={theme.palette.pearson.turquoise} />
-            <Bar yAxisId="right" dataKey="CompletionRate" fill={theme.palette.pearson.yellow} />
+            <Bar yAxisId="left" dataKey="Not Started" fill={theme.palette.pearson.lightPurple} />
+            <Bar yAxisId="left" dataKey="In Progress" fill={theme.palette.pearson.amethyst} />
+            <Bar yAxisId="left" dataKey="Completed" fill={theme.palette.pearson.purple} />
+            <Bar yAxisId="right" dataKey="CompletionRate" fill={theme.palette.pearson.turquoise} />
           </BarChart>
         </ResponsiveContainer>
       </Box>

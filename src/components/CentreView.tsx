@@ -17,7 +17,6 @@ import CentreProgressChart from './charts/CentreProgressChart';
 
 const columns: GridColDef[] = [
   { field: 'centreNumber', headerName: 'Centre Number', flex: 1 },
-  { field: 'centreName', headerName: 'Centre Name', flex: 1 },
   { field: 'customerJourneyPoint', headerName: 'Customer Journey Point', flex: 1 },
   { field: 'trainingModule', headerName: 'Training Module', flex: 1 },
   { field: 'trainingType', headerName: 'Training Type', flex: 1 },
@@ -28,8 +27,20 @@ const columns: GridColDef[] = [
     flex: 1,
   },
   {
+    field: 'notStartedTraining',
+    headerName: 'Not Started',
+    type: 'number',
+    flex: 1,
+  },
+  {
+    field: 'inProgressTraining',
+    headerName: 'In Progress',
+    type: 'number',
+    flex: 1,
+  },
+  {
     field: 'completedTraining',
-    headerName: 'Completed Training',
+    headerName: 'Completed',
     type: 'number',
     flex: 1,
   },
@@ -60,7 +71,7 @@ const CentreView: React.FC = () => {
 
   // Get unique values for filters
   const uniqueCentres = Array.from(
-    new Set(data.map((item) => item.centreName))
+    new Set(data.map((item) => item.centreNumber))
   );
   const uniqueJourneyPoints = Array.from(
     new Set(data.map((item) => item.customerJourneyPoint))
@@ -78,7 +89,7 @@ const CentreView: React.FC = () => {
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
     const matchesCentre =
-      centreFilter === '' || item.centreName === centreFilter;
+      centreFilter === '' || item.centreNumber === centreFilter;
     const matchesJourneyPoint =
       journeyPointFilter === '' || item.customerJourneyPoint === journeyPointFilter;
     const matchesTrainingType =

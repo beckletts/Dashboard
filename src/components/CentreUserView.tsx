@@ -16,20 +16,21 @@ import { dataService } from '../services/DataService';
 
 const columns: GridColDef[] = [
   { field: 'centreNumber', headerName: 'Centre Number', flex: 1 },
-  { field: 'centreName', headerName: 'Centre Name', flex: 1 },
   { field: 'customerJourneyPoint', headerName: 'Customer Journey Point', flex: 1 },
   { field: 'trainingModule', headerName: 'Training Module', flex: 1 },
   { field: 'trainingType', headerName: 'Training Type', flex: 1 },
   { field: 'userEmailAddress', headerName: 'User Email', flex: 1 },
-  {
-    field: 'startedTraining',
-    headerName: 'Started Training',
-    type: 'number',
+  { 
+    field: 'status', 
+    headerName: 'Status', 
     flex: 1,
+    valueFormatter: (params) => {
+      return params.value || 'Not Started';
+    }
   },
   {
-    field: 'completedTraining',
-    headerName: 'Completed Training',
+    field: 'progress',
+    headerName: 'Progress (%)',
     type: 'number',
     flex: 1,
   },
@@ -40,7 +41,7 @@ const CentreUserView: React.FC = () => {
   const [centreFilter, setCentreFilter] = useState('');
   const [journeyPointFilter, setJourneyPointFilter] = useState('');
   const [trainingTypeFilter, setTrainingTypeFilter] = useState('');
-  const [emailFilter, setEmailFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [data, setData] = useState<CentreUserData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -61,7 +62,7 @@ const CentreUserView: React.FC = () => {
 
   // Get unique values for filters
   const uniqueCentres = Array.from(
-    new Set(data.map((item) => item.centreName))
+    new Set(data.map((item) => item.centreNumber))
   );
   const uniqueJourneyPoints = Array.from(
     new Set(data.map((item) => item.customerJourneyPoint))
@@ -69,8 +70,8 @@ const CentreUserView: React.FC = () => {
   const uniqueTrainingTypes = Array.from(
     new Set(data.map((item) => item.trainingType))
   );
-  const uniqueEmails = Array.from(
-    new Set(data.map((item) => item.userEmailAddress))
+  const uniqueStatuses = Array.from(
+    new Set(data.map((item) => item.status))
   );
 
   // Filter data based on search term and filters
@@ -82,20 +83,20 @@ const CentreUserView: React.FC = () => {
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
     const matchesCentre =
-      centreFilter === '' || item.centreName === centreFilter;
+      centreFilter === '' || item.centreNumber === centreFilter;
     const matchesJourneyPoint =
       journeyPointFilter === '' || item.customerJourneyPoint === journeyPointFilter;
     const matchesTrainingType =
       trainingTypeFilter === '' || item.trainingType === trainingTypeFilter;
-    const matchesEmail =
-      emailFilter === '' || item.userEmailAddress === emailFilter;
+    const matchesStatus =
+      statusFilter === '' || item.status === statusFilter;
 
     return (
       matchesSearch &&
       matchesCentre &&
       matchesJourneyPoint &&
       matchesTrainingType &&
-      matchesEmail
+      matchesStatus
     );
   });
 
@@ -168,16 +169,16 @@ const CentreUserView: React.FC = () => {
             </Select>
           </FormControl>
           <FormControl sx={{ minWidth: 200 }}>
-            <InputLabel>User Email</InputLabel>
+            <InputLabel>Status</InputLabel>
             <Select
-              value={emailFilter}
-              label="User Email"
-              onChange={(e: SelectChangeEvent) => setEmailFilter(e.target.value)}
+              value={statusFilter}
+              label="Status"
+              onChange={(e: SelectChangeEvent) => setStatusFilter(e.target.value)}
             >
               <MenuItem value="">All</MenuItem>
-              {uniqueEmails.map((email) => (
-                <MenuItem key={email} value={email}>
-                  {email}
+              {uniqueStatuses.map((status) => (
+                <MenuItem key={status} value={status}>
+                  {status || 'Not Started'}
                 </MenuItem>
               ))}
             </Select>

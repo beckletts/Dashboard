@@ -2,6 +2,7 @@ import Papa from 'papaparse';
 
 interface LMSRecord {
   Course: string;
+  'Training type': string;
   'Enrollment Date (UTC TimeZone)': string;
   'Started Date (UTC TimeZone)': string;
   'Completion Date (UTC TimeZone)': string;
@@ -30,27 +31,28 @@ export interface ProcessedData {
     customerJourneyPoint: string;
     trainingModule: string;
     trainingType: string;
-    numberOfTimesCourseAttempted: number;
-    numberOfTimesCourseCompleted: number;
+    inProgress: number;
+    notStarted: number;
+    completed: number;
   }[];
   centreData: {
     centreNumber: string;
-    centreName: string;
     customerJourneyPoint: string;
     trainingModule: string;
     trainingType: string;
     numberOfRolesAvailable: number;
     completedTraining: number;
+    inProgressTraining: number;
+    notStartedTraining: number;
   }[];
   centreUserData: {
     centreNumber: string;
-    centreName: string;
     customerJourneyPoint: string;
     trainingModule: string;
     trainingType: string;
     userEmailAddress: string;
-    startedTraining: number;
-    completedTraining: number;
+    status: string;
+    progress: number;
   }[];
 }
 
@@ -90,19 +92,27 @@ class DataService {
   private processData(): ProcessedData {
     // Process training catalogue data
     const trainingModules = new Map<string, {
-      attempted: number;
+      trainingType: string;
+      inProgress: number;
+      notStarted: number;
       completed: number;
     }>();
 
     this.lmsData.forEach(record => {
       const key = record.Course;
-      const current = trainingModules.get(key) || { attempted: 0, completed: 0 };
+      const current = trainingModules.get(key) || { 
+        trainingType: record['Training type'] || 'Unknown',
+        inProgress: 0, 
+        notStarted: 0, 
+        completed: 0 
+      };
       
-      if (record['Started Date (UTC TimeZone)']) {
-        current.attempted++;
-      }
-      if (record['Completion Date (UTC TimeZone)']) {
+      if (record.Status && record.Status.toLowerCase().includes('complete')) {
         current.completed++;
+      } else if (record.Status && record.Status.toLowerCase().includes('in progress')) {
+        current.inProgress++;
+      } else {
+        current.notStarted++;
       }
       
       trainingModules.set(key, current);
@@ -110,28 +120,37 @@ class DataService {
 
     // Process centre data
     const centreData = new Map<string, {
-      centreName: string;
       modules: Map<string, {
+        trainingType: string;
         available: number;
         completed: number;
+        inProgress: number;
+        notStarted: number;
       }>;
     }>();
 
     this.lmsData.forEach(record => {
       const centreNumber = record['Centre Number'];
       const current = centreData.get(centreNumber) || {
-        centreName: record['Centre Country'], // Using country as name for now
         modules: new Map()
       };
 
       const moduleData = current.modules.get(record.Course) || {
+        trainingType: record['Training type'] || 'Unknown',
         available: 0,
-        completed: 0
+        completed: 0,
+        inProgress: 0,
+        notStarted: 0
       };
 
       moduleData.available++;
-      if (record['Completion Date (UTC TimeZone)']) {
+      
+      if (record.Status && record.Status.toLowerCase().includes('complete')) {
         moduleData.completed++;
+      } else if (record.Status && record.Status.toLowerCase().includes('in progress')) {
+        moduleData.inProgress++;
+      } else {
+        moduleData.notStarted++;
       }
 
       current.modules.set(record.Course, moduleData);
@@ -142,32 +161,33 @@ class DataService {
       trainingCatalogue: Array.from(trainingModules.entries()).map(([module, data]) => ({
         customerJourneyPoint: 'Training', // You might want to map this based on module name
         trainingModule: module,
-        trainingType: 'LMS',
-        numberOfTimesCourseAttempted: data.attempted,
-        numberOfTimesCourseCompleted: data.completed
+        trainingType: data.trainingType,
+        inProgress: data.inProgress,
+        notStarted: data.notStarted,
+        completed: data.completed
       })),
 
       centreData: Array.from(centreData.entries()).flatMap(([centreNumber, data]) =>
         Array.from(data.modules.entries()).map(([module, moduleData]) => ({
           centreNumber,
-          centreName: data.centreName,
           customerJourneyPoint: 'Training', // You might want to map this based on module name
           trainingModule: module,
-          trainingType: 'LMS',
+          trainingType: moduleData.trainingType,
           numberOfRolesAvailable: moduleData.available,
-          completedTraining: moduleData.completed
+          completedTraining: moduleData.completed,
+          inProgressTraining: moduleData.inProgress,
+          notStartedTraining: moduleData.notStarted
         }))
       ),
 
       centreUserData: this.lmsData.map(record => ({
         centreNumber: record['Centre Number'],
-        centreName: record['Centre Country'], // Using country as name for now
         customerJourneyPoint: 'Training', // You might want to map this based on course name
         trainingModule: record.Course,
-        trainingType: 'LMS',
+        trainingType: record['Training type'] || 'Unknown',
         userEmailAddress: 'user@example.com', // This data isn't in the CSV
-        startedTraining: record['Started Date (UTC TimeZone)'] ? 1 : 0,
-        completedTraining: record['Completion Date (UTC TimeZone)'] ? 1 : 0
+        status: record.Status || 'Unknown',
+        progress: parseInt(record['Progress %'] || '0')
       }))
     };
   }

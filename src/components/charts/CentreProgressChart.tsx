@@ -11,9 +11,19 @@ import { Box, Typography, Paper, useTheme } from '@mui/material';
 
 interface CentreData {
   centreNumber: string;
-  centreName: string;
   numberOfRolesAvailable: number;
   completedTraining: number;
+  inProgressTraining: number;
+  notStartedTraining: number;
+}
+
+interface ChartData {
+  name: string;
+  numberOfRolesAvailable: number;
+  completedTraining: number;
+  inProgressTraining: number;
+  notStartedTraining: number;
+  completionRate: number;
 }
 
 interface Props {
@@ -32,26 +42,26 @@ const CentreProgressChart: React.FC<Props> = ({ data }) => {
   ];
 
   // Aggregate data by centre
-  const centreProgress = data.reduce((acc, curr) => {
-    const existing = acc.find(item => item.centreName === curr.centreName);
+  const centreProgress = data.reduce((acc: ChartData[], curr) => {
+    const existing = acc.find(item => item.name === curr.centreNumber);
     if (existing) {
       existing.numberOfRolesAvailable += curr.numberOfRolesAvailable;
       existing.completedTraining += curr.completedTraining;
+      existing.inProgressTraining += curr.inProgressTraining;
+      existing.notStartedTraining += curr.notStartedTraining;
+      existing.completionRate = Math.round((existing.completedTraining / existing.numberOfRolesAvailable) * 100);
     } else {
       acc.push({
-        name: curr.centreName,
+        name: curr.centreNumber,
         numberOfRolesAvailable: curr.numberOfRolesAvailable,
         completedTraining: curr.completedTraining,
+        inProgressTraining: curr.inProgressTraining,
+        notStartedTraining: curr.notStartedTraining,
         completionRate: Math.round((curr.completedTraining / curr.numberOfRolesAvailable) * 100)
       });
     }
     return acc;
-  }, [] as Array<{
-    name: string;
-    numberOfRolesAvailable: number;
-    completedTraining: number;
-    completionRate: number;
-  }>);
+  }, [] as ChartData[]);
 
   return (
     <Paper sx={{ p: 2, mb: 2 }}>
@@ -69,7 +79,6 @@ const CentreProgressChart: React.FC<Props> = ({ data }) => {
               cy="50%"
               outerRadius={120}
               label={(entry) => `${entry.name}: ${entry.completionRate}%`}
-              labelStyle={{ fontFamily: 'Plus Jakarta Sans' }}
             >
               {centreProgress.map((entry, index) => (
                 <Cell
