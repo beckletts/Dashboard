@@ -55,8 +55,8 @@ const CentreView: React.FC = () => {
   const [data, setData] = useState<CentreData[]>([]);
   const [loading, setLoading] = useState(true);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [_startDate, setStartDate] = useState('');
+  const [_endDate, setEndDate] = useState('');
   const [fullData, setFullData] = useState<any>(null);
 
   useEffect(() => {

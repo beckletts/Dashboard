@@ -39,7 +39,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({ availableDates, onDat
       setEndDate(newEndDate);
       onDateFilterChange(newStartDate, newEndDate);
     }
-  }, [availableDates, onDateFilterChange]);
+  }, [availableDates, onDateFilterChange, preset]);
   
   const handlePresetChange = (event: SelectChangeEvent) => {
     const value = event.target.value;
