@@ -46,8 +46,6 @@ const CentreUserView: React.FC = () => {
   const [data, setData] = useState<CentreUserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
-  const [_startDate, setStartDate] = useState('');
-  const [_endDate, setEndDate] = useState('');
   const [fullData, setFullData] = useState<any>(null);
 
   useEffect(() => {
@@ -62,8 +60,6 @@ const CentreUserView: React.FC = () => {
         const today = new Date();
         const last30 = new Date();
         last30.setDate(today.getDate() - 30);
-        setStartDate(last30.toISOString().split('T')[0]);
-        setEndDate(today.toISOString().split('T')[0]);
         
         // Apply initial filter
         const filteredData = dataService.filterByDateRange(
@@ -84,9 +80,6 @@ const CentreUserView: React.FC = () => {
 
   // Handle date range filter changes
   const handleDateRangeChange = (newStartDate: string, newEndDate: string) => {
-    setStartDate(newStartDate);
-    setEndDate(newEndDate);
-    
     if (!fullData) return;
     
     const filteredData = dataService.filterByDateRange(

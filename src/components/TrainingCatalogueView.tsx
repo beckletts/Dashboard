@@ -14,7 +14,6 @@ import {
 import { 
   DataGrid, 
   GridColDef, 
-  GridValueGetterParams,
   GridRenderCellParams
 } from '@mui/x-data-grid';
 import { TrainingCatalogue } from '../types';
@@ -76,8 +75,6 @@ const TrainingCatalogueView: React.FC = () => {
   const [data, setData] = useState<TrainingCatalogue[]>([]);
   const [loading, setLoading] = useState(true);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
   const [fullData, setFullData] = useState<any>(null);
 
   useEffect(() => {
@@ -92,8 +89,6 @@ const TrainingCatalogueView: React.FC = () => {
         const today = new Date();
         const last30 = new Date();
         last30.setDate(today.getDate() - 30);
-        setStartDate(last30.toISOString().split('T')[0]);
-        setEndDate(today.toISOString().split('T')[0]);
         
         // Apply initial filter for cleaner visualization
         const filteredData = dataService.filterByDateRange(
@@ -114,9 +109,6 @@ const TrainingCatalogueView: React.FC = () => {
 
   // Handle date range filter changes
   const handleDateRangeChange = (newStartDate: string, newEndDate: string) => {
-    setStartDate(newStartDate);
-    setEndDate(newEndDate);
-    
     if (!fullData) return;
     
     // Apply date filtering to display a subset of data
