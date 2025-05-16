@@ -407,8 +407,6 @@ class DataService {
     }[] = [];
     
     try {
-      console.log('Raw Storylane data to process:', this.storylaneData);
-      
       if (this.storylaneData && this.storylaneData.length > 0) {
         storylaneDataFormatted = this.storylaneData.map(record => {
           // Parse percent complete as a number
@@ -423,7 +421,7 @@ class DataService {
           // Convert 'Yes'/'No' to boolean
           const openedCTA = record['Opened CTA']?.toLowerCase() === 'yes';
           
-          const result = {
+          return {
             demoName: record.Demo || '',
             link: record.Link || '',
             lastView: record['Last View'] || '',
@@ -433,18 +431,11 @@ class DataService {
             openedCTA: openedCTA,
             country: record.Country || ''
           };
-          
-          console.log('Processed storylane record:', result);
-          return result;
         });
-      } else {
-        console.warn('No Storylane data to process');
       }
     } catch (error) {
       console.error('Error processing Storylane data:', error);
     }
-    
-    console.log('Formatted Storylane data:', storylaneDataFormatted);
 
     return {
       trainingCatalogue: catalogueData,

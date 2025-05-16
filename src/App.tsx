@@ -4,7 +4,6 @@ import TrainingCatalogueView from './components/TrainingCatalogueView';
 import CentreView from './components/CentreView';
 import CentreUserView from './components/CentreUserView';
 import StorylaneView from './components/StorylaneView';
-import Test from './components/Test';
 import { theme } from './theme';
 
 interface TabPanelProps {
@@ -89,15 +88,6 @@ function App() {
                 }
               }} 
             />
-            <Tab 
-              label="Debug" 
-              sx={{ 
-                fontWeight: 500,
-                '&.Mui-selected': {
-                  color: 'pearson.purple'
-                }
-              }} 
-            />
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
@@ -111,9 +101,6 @@ function App() {
         </TabPanel>
         <TabPanel value={value} index={3}>
           <StorylaneView />
-        </TabPanel>
-        <TabPanel value={value} index={4}>
-          <Test />
         </TabPanel>
       </Box>
     </ThemeProvider>

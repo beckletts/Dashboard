@@ -31,7 +31,8 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  Legend
 } from 'recharts';
 import { dataService } from '../services/DataService';
 import DateRangeFilter from './DateRangeFilter';
@@ -169,12 +170,19 @@ const StorylaneView: React.FC = () => {
     const ctaClicked = filteredData.filter(item => item.openedCTA).length;
     const ctaRate = filteredData.length > 0 ? Math.round((ctaClicked / filteredData.length) * 100) : 0;
     
+    // CTA click data for pie chart
+    const ctaClickData = [
+      { name: 'Clicked', value: ctaClicked },
+      { name: 'Not Clicked', value: filteredData.length - ctaClicked }
+    ];
+    
     return {
       avgCompletion,
       completionStatus,
       countryData,
       ctaClicked,
-      ctaRate
+      ctaRate,
+      ctaClickData
     };
   };
   
@@ -186,6 +194,12 @@ const StorylaneView: React.FC = () => {
     theme.palette.pearson.purple, 
     theme.palette.pearson.yellow,
     theme.palette.pearson.lightPurple
+  ];
+  
+  // Colors for CTA chart
+  const CTA_COLORS = [
+    theme.palette.success.main,
+    theme.palette.grey[400]
   ];
 
   if (loading) {
@@ -305,7 +319,7 @@ const StorylaneView: React.FC = () => {
 
       {/* Charts Row */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom fontFamily="Plus Jakarta Sans" fontWeight={500}>
               Demo Completion Rates
@@ -331,7 +345,34 @@ const StorylaneView: React.FC = () => {
             </ResponsiveContainer>
           </Paper>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6" gutterBottom fontFamily="Plus Jakarta Sans" fontWeight={500}>
+              CTA Click Rate
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={metrics.ctaClickData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={120}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {metrics.ctaClickData.map((entry, index) => (
+                    <Cell key={`cta-cell-${index}`} fill={CTA_COLORS[index % CTA_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => [`${value} demos`, 'Count']} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={4}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom fontFamily="Plus Jakarta Sans" fontWeight={500}>
               Demo Usage by Country
