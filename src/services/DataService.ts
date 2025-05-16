@@ -115,20 +115,17 @@ class DataService {
       }
       
       const csvText = await response.text();
-      console.log('Storylane CSV content:', csvText.substring(0, 200)); // Log first 200 chars
       
       const result = Papa.parse<StorylaneRecord>(csvText, {
         header: true,
         skipEmptyLines: true
       });
       
-      console.log('Parsed Storylane data:', result);
       if (result.errors && result.errors.length > 0) {
         console.error('Errors parsing Storylane CSV:', result.errors);
       }
       
       this.storylaneData = result.data;
-      console.log('Storylane data loaded:', this.storylaneData.length, 'records');
     } catch (error) {
       console.error('Error loading Storylane data:', error);
     }

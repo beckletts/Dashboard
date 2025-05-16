@@ -14,7 +14,6 @@ import {
   CardContent,
   Grid,
   Chip,
-  Link,
   Table,
   TableBody,
   TableCell,
@@ -52,24 +51,28 @@ const StorylaneView: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Fetch the CSV directly to check if it's accessible
-        const response = await fetch('/storylane.csv');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch storylane.csv: ${response.status} ${response.statusText}`);
-        }
-        const csvText = await response.text();
-        console.log('Raw CSV content:', csvText.substring(0, 200)); // Show first 200 chars
-        
         const processedData = await dataService.loadData();
-        console.log('Full processed data:', processedData);
-        console.log('Storylane Data from DataService:', processedData.storylaneData);
         
         if (!processedData.storylaneData || processedData.storylaneData.length === 0) {
           setError('No Storylane data was loaded. Check the CSV file format.');
         }
         
-        setFullData(processedData);
-        setData(processedData.storylaneData || []);
+        // Adjust any percentages if they're in decimal format (0-1 range)
+        const fixedPercentData = processedData.storylaneData?.map(item => {
+          if (item.percentComplete <= 1) {
+            return {
+              ...item,
+              percentComplete: Math.round(item.percentComplete * 100)
+            };
+          }
+          return item;
+        }) || [];
+        
+        setFullData({
+          ...processedData,
+          storylaneData: fixedPercentData
+        });
+        setData(fixedPercentData);
         setAvailableDates(processedData.availableDates);
         
         // Set default to last 30 days
@@ -79,11 +82,13 @@ const StorylaneView: React.FC = () => {
         
         // Apply initial filter
         const filteredData = dataService.filterByDateRange(
-          processedData,
+          {
+            ...processedData,
+            storylaneData: fixedPercentData
+          },
           last30.toISOString().split('T')[0],
           today.toISOString().split('T')[0]
         );
-        console.log('Filtered Storylane Data:', filteredData.storylaneData);
         setData(filteredData.storylaneData || []);
       } catch (error) {
         console.error('Error loading data:', error);
@@ -368,7 +373,6 @@ const StorylaneView: React.FC = () => {
                 <TableCell>Steps</TableCell>
                 <TableCell>CTA Clicked</TableCell>
                 <TableCell>Country</TableCell>
-                <TableCell>Link</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -400,16 +404,11 @@ const StorylaneView: React.FC = () => {
                       ) : 'No'}
                     </TableCell>
                     <TableCell>{demo.country}</TableCell>
-                    <TableCell>
-                      <Link href={demo.link} target="_blank" rel="noopener">
-                        View
-                      </Link>
-                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
+                  <TableCell colSpan={6} align="center">
                     No data available
                   </TableCell>
                 </TableRow>
