@@ -17,13 +17,29 @@ const DATE_PRESETS = [
 ];
 
 const DateRangeFilter: React.FC<DateRangeFilterProps> = ({ availableDates, onDateFilterChange }) => {
-  const [preset, setPreset] = React.useState('all');
+  const [preset, setPreset] = React.useState('last30');
   const [startDate, setStartDate] = React.useState('');
   const [endDate, setEndDate] = React.useState('');
   const [showCustomRange, setShowCustomRange] = React.useState(false);
 
   // Sort dates in ascending order
   const sortedDates = [...availableDates].sort();
+  
+  // Set up default dates on component mount
+  React.useEffect(() => {
+    if (availableDates.length > 0 && preset === 'last30') {
+      const today = new Date();
+      const last30 = new Date();
+      last30.setDate(today.getDate() - 30);
+      
+      const newStartDate = last30.toISOString().split('T')[0];
+      const newEndDate = today.toISOString().split('T')[0];
+      
+      setStartDate(newStartDate);
+      setEndDate(newEndDate);
+      onDateFilterChange(newStartDate, newEndDate);
+    }
+  }, [availableDates, onDateFilterChange]);
   
   const handlePresetChange = (event: SelectChangeEvent) => {
     const value = event.target.value;

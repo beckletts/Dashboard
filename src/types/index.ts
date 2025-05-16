@@ -29,4 +29,15 @@ export interface CentreUserData {
   status: string;
   progress: number;
   date?: string;
+}
+
+export interface StorylaneData {
+  demoName: string;
+  link: string;
+  lastView: string;
+  totalTime: string;
+  stepsCompleted: string;
+  percentComplete: number;
+  openedCTA: boolean;
+  country: string;
 } 

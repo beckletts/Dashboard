@@ -45,7 +45,7 @@ const TrainingCompletionChart: React.FC<Props> = ({ data }) => {
           <BarChart
             data={chartData}
             margin={{
-              top: 20,
+              top: 40,
               right: 30,
               left: 20,
               bottom: 100
@@ -81,6 +81,8 @@ const TrainingCompletionChart: React.FC<Props> = ({ data }) => {
               wrapperStyle={{
                 fontFamily: 'Plus Jakarta Sans'
               }}
+              verticalAlign="top"
+              height={36}
             />
             <Bar yAxisId="left" dataKey="Not Started" fill={theme.palette.pearson.lightPurple} />
             <Bar yAxisId="left" dataKey="In Progress" fill={theme.palette.pearson.amethyst} />

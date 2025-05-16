@@ -9,14 +9,20 @@ import {
   MenuItem,
   SelectChangeEvent,
   CircularProgress,
+  Chip,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { 
+  DataGrid, 
+  GridColDef, 
+  GridValueGetterParams,
+  GridRenderCellParams
+} from '@mui/x-data-grid';
 import { TrainingCatalogue } from '../types';
 import { dataService } from '../services/DataService';
 import TrainingCompletionChart from './charts/TrainingCompletionChart';
 import DateRangeFilter from './DateRangeFilter';
 
-const columns: GridColDef[] = [
+const getColumns = (data: TrainingCatalogue[]): GridColDef[] => [
   { field: 'customerJourneyPoint', headerName: 'Customer Journey Point', flex: 1 },
   { field: 'trainingModule', headerName: 'Training Module', flex: 1 },
   { field: 'trainingType', headerName: 'Training Type', flex: 1 },
@@ -34,7 +40,30 @@ const columns: GridColDef[] = [
   },
   {
     field: 'completed',
-    headerName: 'Completed',
+    headerName: data.some(item => item.trainingType.toLowerCase().includes('webinar')) 
+      ? 'Completed / Enrolled' 
+      : 'Completed',
+    renderHeader: () => {
+      return data.some(item => item.trainingType.toLowerCase().includes('webinar')) 
+        ? 'Completed / Enrolled' 
+        : 'Completed';
+    },
+    renderCell: (params: GridRenderCellParams) => {
+      const isWebinar = params.row.trainingType.toLowerCase().includes('webinar');
+      return (
+        <>
+          {params.value}
+          {isWebinar && (
+            <Chip 
+              label="Webinar Enrollments" 
+              size="small" 
+              color="primary" 
+              sx={{ ml: 1, height: 20, fontSize: '0.7rem' }} 
+            />
+          )}
+        </>
+      );
+    },
     type: 'number',
     flex: 1,
   },
@@ -49,15 +78,30 @@ const TrainingCatalogueView: React.FC = () => {
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [fullData, setFullData] = useState<any>(null); // Store complete data response for filtering
+  const [fullData, setFullData] = useState<any>(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const processedData = await dataService.loadData();
-        setFullData(processedData); // Store complete response
+        setFullData(processedData);
         setData(processedData.trainingCatalogue);
         setAvailableDates(processedData.availableDates);
+        
+        // Set default to last 30 days
+        const today = new Date();
+        const last30 = new Date();
+        last30.setDate(today.getDate() - 30);
+        setStartDate(last30.toISOString().split('T')[0]);
+        setEndDate(today.toISOString().split('T')[0]);
+        
+        // Apply initial filter for cleaner visualization
+        const filteredData = dataService.filterByDateRange(
+          processedData,
+          last30.toISOString().split('T')[0],
+          today.toISOString().split('T')[0]
+        );
+        setData(filteredData.trainingCatalogue);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -73,13 +117,15 @@ const TrainingCatalogueView: React.FC = () => {
     setStartDate(newStartDate);
     setEndDate(newEndDate);
     
-    // If no full data yet, can't filter
     if (!fullData) return;
     
     // Apply date filtering to display a subset of data
-    // For now, this is simplified - in a real app, you would calculate new aggregates based on filtered data
-    const filteredData = fullData.trainingCatalogue;
-    setData(filteredData.slice(0, 10)); // Simplification: just show fewer items for cleaner visualization
+    const filteredData = dataService.filterByDateRange(
+      fullData,
+      newStartDate,
+      newEndDate
+    );
+    setData(filteredData.trainingCatalogue);
   };
 
   // Get unique values for filters
@@ -113,6 +159,9 @@ const TrainingCatalogueView: React.FC = () => {
       </Box>
     );
   }
+
+  // Get columns dynamically based on the data
+  const columns = getColumns(data);
 
   return (
     <Box sx={{ height: '100%', width: '100%' }}>

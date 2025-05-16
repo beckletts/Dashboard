@@ -1,60 +1,65 @@
-# Training Dashboard
+# Pearson Training Dashboard
 
-A React-based dashboard for visualizing training data across different centers. Built using Material-UI and Recharts, following Pearson's brand guidelines.
+A comprehensive dashboard for visualizing training data from CSV files. This dashboard provides insights into training completion rates, webinar enrollments, and Storylane demo usage.
 
 ## Features
 
-- Training Catalogue View: Visualize training completion rates and attempts
-- Centre View: Track progress across different centers
-- Centre User View: Individual user progress tracking
-- Interactive charts and data grids
-- Responsive design
-- Pearson brand-compliant UI
+- **Training Catalogue View**: View and filter training modules by type, completion status, and date range
+- **Centre View**: Analyze training progress across different centers with top 5 center rankings
+- **Centre User View**: Detailed user-level training data
+- **Storylane Demos View**: Visualize demo usage metrics including completion rates and CTA click rates
 
-## Tech Stack
+## Technology Stack
 
 - React
 - TypeScript
-- Material-UI (MUI)
-- Recharts
-- Papa Parse (CSV parsing)
+- Material-UI
+- Recharts for data visualization
+- Papa Parse for CSV parsing
 
 ## Getting Started
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/training-dashboard.git
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+```
+git clone https://github.com/beckletts/Dashboard.git
+cd Dashboard
 ```
 
-2. Install dependencies:
-```bash
-cd training-dashboard
+2. Install dependencies
+```
 npm install
 ```
 
-3. Start the development server:
-```bash
+3. Start the development server
+```
 npm start
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+The application will be available at http://localhost:3000
 
-## Data Format
+### Data Files
 
-The dashboard expects two CSV files in the `public` directory:
-- `LMS.csv`: Learning Management System data
-- `storylane.csv`: Storylane training data
+The dashboard uses two CSV files for data:
+- `LMS.csv`: Contains training completion data
+- `storylane all.csv`: Contains demo usage metrics
 
-## Building for Production
+Place these files in the `public` directory.
 
-To create a production build:
+## Deployment
 
-```bash
+To build the application for production:
+
+```
 npm run build
 ```
 
-The build artifacts will be stored in the `build/` directory.
-
 ## License
 
-MIT 
+This project is licensed under the MIT License. 
