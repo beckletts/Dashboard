@@ -5,6 +5,7 @@ export interface TrainingCatalogue {
   inProgress: number;
   notStarted: number;
   completed: number;
+  date?: string;
 }
 
 export interface CentreData {
@@ -16,6 +17,7 @@ export interface CentreData {
   completedTraining: number;
   inProgressTraining: number;
   notStartedTraining: number;
+  date?: string;
 }
 
 export interface CentreUserData {
@@ -26,4 +28,5 @@ export interface CentreUserData {
   userEmailAddress: string;
   status: string;
   progress: number;
+  date?: string;
 } 
